@@ -10,7 +10,14 @@ namespace Rechner
             while (true)
             {
                 string input = Console.ReadLine();
-                Console.WriteLine(PostFixStackEvaluator(ParserV2(input)));
+                if(input == "Clear")
+                {
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine(PostFixStackEvaluator(ParserV2(input)));
+                }
             }
         }
         private static Queue<string> ParserV2(string input)
@@ -19,11 +26,17 @@ namespace Rechner
             char[] inputCh = input.ToCharArray();
             List<string> convInput = new List<string>();
 
+            //Vorzeichen
             if(inputCh[0] == '-')
             {
                 vorzeichen = true;
             }
+            if(inputCh[0] == '+')
+            {
+                vorzeichen = true;
+            }
 
+            //Split string
             for (int i = 0; i < inputCh.Length; i++)
             {
                 if (isOperator(inputCh[i].ToString()))
@@ -51,15 +64,39 @@ namespace Rechner
                 }
             }
 
+            //minus mitten in rechnung
+            for (int i = 0; i < convInput.Count; i++)
+            {
+                if(i - 2 >= 0)
+                {
+                    if (!isOperator(convInput[i]) && isOperator(convInput[i - 1]) && isOperator(convInput[i - 2]))
+                    {
+                        convInput[i] = convInput[i - 1] + convInput[i];
+                        convInput.RemoveAt(i - 1);
+                    }
+
+                }
+            }
+
+            //Vorzeichen Berechnung 
             if (vorzeichen)
             {
-                convInput.RemoveAt(0);
-                convInput[0] = "-" + convInput[0];
+                if(convInput[0] == "-")
+                {
+                    convInput.RemoveAt(0);
+                    convInput[0] = "-" + convInput[0];
+                }
+                else
+                {
+                    convInput.RemoveAt(0);
+                }
+
             }
 
             Stack<string> stack = new Stack<string>();
             Queue<string> queue = new Queue<string>();
 
+            //Converting to PostFix
             foreach(string element in convInput)
             {
                 if (!isOperator(element))
